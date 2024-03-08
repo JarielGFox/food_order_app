@@ -11,6 +11,14 @@ export default function Cart() {
   );
   const formattedTotalPrice = `$${totalPrice.toFixed(2)}`;
 
+  const handleResetCart = () => {
+    //per resettare il carrello, facciamo un forEach su tutti gli oggetti nell'array
+    //per ogni item, chiamiamo la funzione updateItemQuantity con item.id, -item.quantity
+    items.forEach((item) => {
+      updateItemQuantity(item.id, -item.quantity);
+    });
+  };
+
   return (
     <div id="cart">
       {items.length === 0 && <p>No items in cart!</p>}
@@ -42,6 +50,11 @@ export default function Cart() {
       <p id="cart-total-price">
         Cart Total: <strong>{formattedTotalPrice}</strong>
       </p>
+      {items.length > 0 && (
+        <button onClick={handleResetCart} className="button-clear">
+          Clear Cart
+        </button>
+      )}
     </div>
   );
 }

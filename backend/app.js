@@ -24,6 +24,15 @@ app.get("/meals", async (req, res) => {
   }
 });
 
+app.get("/orders", async (req, res) => {
+  try {
+    const orders = await fs.readFile("./data/orders.json", "utf8");
+    res.json(JSON.parse(orders));
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 app.post("/orders", async (req, res) => {
   const orderData = req.body.order;
 
@@ -40,10 +49,11 @@ app.post("/orders", async (req, res) => {
     !orderData.customer.email.includes("@") ||
     orderData.customer.name === null ||
     orderData.customer.name.trim() === "" ||
-    orderData.customer.street === null ||
-    orderData.customer.street.trim() === "" ||
-    orderData.customer["postal-code"] === null ||
-    orderData.customer["postal-code"].trim() === "" ||
+    orderData.customer.address === null ||
+    orderData.customer.address.trim() === "" ||
+    orderData.customer.phone === null ||
+    orderData.customer.zip === null ||
+    orderData.customer.zip.trim() === "" ||
     orderData.customer.city === null ||
     orderData.customer.city.trim() === ""
   ) {
@@ -64,21 +74,25 @@ app.post("/orders", async (req, res) => {
   res.status(201).json({ message: "Order created!" });
 });
 
+app.delete("/orders/clear", async (req, res) => {
+  const action = req.body.action;
+  if (action === "clear") {
+    const emptyOrders = [];
+    await fs.writeFile("./data/orders.json", JSON.stringify(emptyOrders));
+    res.status(201).json({ message: "Orders deleted!" });
+  } else {
+    res.status(400).json({ message: "Invalid action" });
+  }
+
+})
+
+
 app.use((req, res) => {
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
 
   res.status(404).json({ message: "Not found" });
-});
-
-app.get("/orders", async (req, res) => {
-  try {
-    const orders = await fs.readFile("./data/orders.json", "utf8");
-    res.json(JSON.parse(orders));
-  } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
-  }
 });
 
 app.listen(3000);

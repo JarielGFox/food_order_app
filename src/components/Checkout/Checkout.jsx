@@ -2,8 +2,9 @@ import { useState } from "react";
 import { CartContext } from "../../store/shopping-cart-context.jsx";
 import { useContext } from "react";
 import CheckoutForm from "./CheckoutForm.jsx";
+import DisplayMessage from "../DisplayMessage/DisplayMessage.jsx";
 
-const FormAction = () => {
+const Checkout = () => {
   const { items } = useContext(CartContext);
 
   //calcolo del totale che viene preso dal context
@@ -18,6 +19,9 @@ const FormAction = () => {
 
   //Stato per la gestione della validazione front-end
   const [errors, setErrors] = useState({});
+
+  //Stato per comprendere se l'utente ha ordinato o no
+  const [isOrdered, setIsOrdered] = useState(false);
 
   //Stato per dati del form da passare al backend
   const [orderData, setOrderData] = useState({
@@ -125,6 +129,7 @@ const FormAction = () => {
       if (!response.ok) {
         throw new Error("Something went wrong with the order submission.");
       }
+      setIsOrdered(true);
       setMessageData({ message: "Your order has been submitted!" });
     } catch (error) {
       setMessageData({ message: error.message });
@@ -132,16 +137,22 @@ const FormAction = () => {
   };
 
   return (
-    <CheckoutForm
-      orderData={orderData}
-      messageData={messageData}
-      formattedTotalPrice={formattedTotalPrice}
-      errors={errors}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleReset={handleReset}
-    />
+    <>
+      {isOrdered ? (
+        <DisplayMessage message={messageData.message} success={true} />
+      ) : (
+        <CheckoutForm
+          orderData={orderData}
+          messageData={messageData}
+          formattedTotalPrice={formattedTotalPrice}
+          errors={errors}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          handleReset={handleReset}
+        />
+      )}
+    </>
   );
 };
 
-export default FormAction;
+export default Checkout;
